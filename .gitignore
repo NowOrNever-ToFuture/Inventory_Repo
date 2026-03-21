@@ -1,0 +1,16 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# ASP.NET app settings (sensitive)
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.*.json
+
+# Docker files (as requested)
+HomeInventory/Dockerfile
+HomeInventory/docker-compose.yml
+
+# IDE
+.idea/
+.vscode/
