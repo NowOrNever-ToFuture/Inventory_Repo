@@ -18,6 +18,7 @@ public static class ConfigureServices
         services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
@@ -25,7 +26,6 @@ public static class ConfigureServices
         services.AddScoped<IPurchaseOrderItemRepository, PurchaseOrderItemRepository>();
         services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
         services.AddScoped<ISalesOrderItemRepository, SalesOrderItemRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IInventoryTransactionRepository, InventoryTransactionRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

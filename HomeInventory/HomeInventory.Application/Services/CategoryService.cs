@@ -1,5 +1,7 @@
 using HomeInventory.Application.Common.Interface.RepoInterfaces;
 using HomeInventory.Application.Common.Interface.ServiceInterfaces;
+using HomeInventory.Application.Common.Exceptions.Entities;
+using HomeInventory.Application.Common.Extensions;
 using HomeInventory.Application.Features.Category.Dtos;
 using HomeInventory.Domain.Entities;
 
@@ -19,31 +21,41 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         return entity is null ? null : Map(entity);
     }
 
-    public async Task<Guid> CreateAsync(CategoryRequestDto request)
+    public async Task<CategoryResponseDto> CreateAsync(CategoryRequestDto request)
     {
+        var name = request.Name.Trim();
+        var normalizedName = request.Name.NormalizeKey();
+        if (await unitOfWork.Categories.ExistsByNameNormalizedAsync(normalizedName))
+            throw new CategoryAlreadyExistsException(name);
+
         var entity = new Category
         {
-            Name = request.Name,
+            Name = name,
             Description = request.Description
         };
 
         await unitOfWork.Categories.AddAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return entity.Id;
+        return Map(entity);
     }
 
-    public async Task<bool> UpdateAsync(Guid id, CategoryRequestDto request)
+    public async Task<CategoryResponseDto> UpdateAsync(Guid id, CategoryRequestDto request)
     {
         var entity = await unitOfWork.Categories.GetByIdAsync(id);
-        if (entity is null) return false;
+        if (entity is null) throw new CategoryNotFoundException(id);
 
-        entity.Name = request.Name;
+        var name = request.Name.Trim();
+        var normalizedName = request.Name.NormalizeKey();
+        if (await unitOfWork.Categories.ExistsByNameNormalizedAsync(normalizedName, id))
+            throw new CategoryAlreadyExistsException(name);
+
+        entity.Name = name;
         entity.Description = request.Description;
         entity.UpdatedAtUtc = DateTime.UtcNow;
 
         await unitOfWork.Categories.UpdateAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return true;
+        return Map(entity);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

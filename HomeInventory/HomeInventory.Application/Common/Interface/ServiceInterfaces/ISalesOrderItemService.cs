@@ -6,7 +6,7 @@ public interface ISalesOrderItemService
 {
     Task<List<SalesOrderItemResponseDto>> GetAllAsync();
     Task<SalesOrderItemResponseDto?> GetByIdAsync(Guid id);
-    Task<Guid> CreateAsync(SalesOrderItemRequestDto request);
-    Task<bool> UpdateAsync(Guid id, SalesOrderItemRequestDto request);
+    Task<SalesOrderItemResponseDto> CreateAsync(SalesOrderItemRequestDto request);
+    Task<SalesOrderItemResponseDto> UpdateAsync(Guid id, SalesOrderItemRequestDto request);
     Task<bool> DeleteAsync(Guid id);
 }

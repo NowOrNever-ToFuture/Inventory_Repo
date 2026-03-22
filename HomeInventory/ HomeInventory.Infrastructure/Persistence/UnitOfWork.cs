@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
 
         Categories = new CategoryRepository(_context);
+        Brands = new BrandRepository(_context);
         Suppliers = new SupplierRepository(_context);
         Warehouses = new WarehouseRepository(_context);
         Products = new ProductRepository(_context);
@@ -20,11 +21,11 @@ public class UnitOfWork : IUnitOfWork
         PurchaseOrderItems = new PurchaseOrderItemRepository(_context);
         SalesOrders = new SalesOrderRepository(_context);
         SalesOrderItems = new SalesOrderItemRepository(_context);
-        Payments = new PaymentRepository(_context);
         InventoryTransactions = new InventoryTransactionRepository(_context);
     }
 
     public ICategoryRepository Categories { get; }
+    public IBrandRepository Brands { get; }
     public ISupplierRepository Suppliers { get; }
     public IWarehouseRepository Warehouses { get; }
     public IProductRepository Products { get; }
@@ -32,7 +33,6 @@ public class UnitOfWork : IUnitOfWork
     public IPurchaseOrderItemRepository PurchaseOrderItems { get; }
     public ISalesOrderRepository SalesOrders { get; }
     public ISalesOrderItemRepository SalesOrderItems { get; }
-    public IPaymentRepository Payments { get; }
     public IInventoryTransactionRepository InventoryTransactions { get; }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

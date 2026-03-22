@@ -1,5 +1,6 @@
 using HomeInventory.Application.Common.Interface.RepoInterfaces;
 using HomeInventory.Application.Common.Interface.ServiceInterfaces;
+using HomeInventory.Application.Common.Exceptions.Entities;
 using HomeInventory.Application.Features.PurchaseOrderItem.Dtos;
 using HomeInventory.Domain.Entities;
 
@@ -19,7 +20,7 @@ public class PurchaseOrderItemService(IUnitOfWork unitOfWork) : IPurchaseOrderIt
         return entity is null ? null : Map(entity);
     }
 
-    public async Task<Guid> CreateAsync(PurchaseOrderItemRequestDto request)
+    public async Task<PurchaseOrderItemResponseDto> CreateAsync(PurchaseOrderItemRequestDto request)
     {
         var entity = new PurchaseOrderItem
         {
@@ -32,13 +33,13 @@ public class PurchaseOrderItemService(IUnitOfWork unitOfWork) : IPurchaseOrderIt
 
         await unitOfWork.PurchaseOrderItems.AddAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return entity.Id;
+        return Map(entity);
     }
 
-    public async Task<bool> UpdateAsync(Guid id, PurchaseOrderItemRequestDto request)
+    public async Task<PurchaseOrderItemResponseDto> UpdateAsync(Guid id, PurchaseOrderItemRequestDto request)
     {
         var entity = await unitOfWork.PurchaseOrderItems.GetByIdAsync(id);
-        if (entity is null) return false;
+        if (entity is null) throw new PurchaseOrderItemNotFoundException(id);
 
         entity.PurchaseOrderId = request.PurchaseOrderId;
         entity.ProductId = request.ProductId;
@@ -49,7 +50,7 @@ public class PurchaseOrderItemService(IUnitOfWork unitOfWork) : IPurchaseOrderIt
 
         await unitOfWork.PurchaseOrderItems.UpdateAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return true;
+        return Map(entity);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

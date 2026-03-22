@@ -1,5 +1,6 @@
 using HomeInventory.Application.Common.Interface.RepoInterfaces;
 using HomeInventory.Application.Common.Interface.ServiceInterfaces;
+using HomeInventory.Application.Common.Exceptions.Entities;
 using HomeInventory.Application.Features.InventoryTransaction.Dtos;
 using HomeInventory.Domain.Entities;
 
@@ -19,7 +20,7 @@ public class InventoryTransactionService(IUnitOfWork unitOfWork) : IInventoryTra
         return entity is null ? null : Map(entity);
     }
 
-    public async Task<Guid> CreateAsync(InventoryTransactionRequestDto request)
+    public async Task<InventoryTransactionResponseDto> CreateAsync(InventoryTransactionRequestDto request)
     {
         var entity = new InventoryTransaction
         {
@@ -36,13 +37,13 @@ public class InventoryTransactionService(IUnitOfWork unitOfWork) : IInventoryTra
 
         await unitOfWork.InventoryTransactions.AddAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return entity.Id;
+        return Map(entity);
     }
 
-    public async Task<bool> UpdateAsync(Guid id, InventoryTransactionRequestDto request)
+    public async Task<InventoryTransactionResponseDto> UpdateAsync(Guid id, InventoryTransactionRequestDto request)
     {
         var entity = await unitOfWork.InventoryTransactions.GetByIdAsync(id);
-        if (entity is null) return false;
+        if (entity is null) throw new InventoryTransactionNotFoundException(id);
 
         entity.ProductId = request.ProductId;
         entity.WarehouseId = request.WarehouseId;
@@ -57,7 +58,7 @@ public class InventoryTransactionService(IUnitOfWork unitOfWork) : IInventoryTra
 
         await unitOfWork.InventoryTransactions.UpdateAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return true;
+        return Map(entity);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

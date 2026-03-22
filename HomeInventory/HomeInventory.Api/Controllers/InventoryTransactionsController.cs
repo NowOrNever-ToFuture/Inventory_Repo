@@ -30,18 +30,18 @@ public class InventoryTransactionsController(IInventoryTransactionService invent
 
     /// <summary>Tạo mới giao dịch tồn kho.</summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] InventoryTransactionRequestDto request)
+    public async Task<ActionResult<InventoryTransactionResponseDto>> Create([FromBody] InventoryTransactionRequestDto request)
     {
-        var id = await inventoryTransactionService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await inventoryTransactionService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>Cập nhật giao dịch tồn kho theo id.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] InventoryTransactionRequestDto request)
+    public async Task<ActionResult<InventoryTransactionResponseDto>> Update(Guid id, [FromBody] InventoryTransactionRequestDto request)
     {
         var updated = await inventoryTransactionService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>Xóa giao dịch tồn kho theo id.</summary>

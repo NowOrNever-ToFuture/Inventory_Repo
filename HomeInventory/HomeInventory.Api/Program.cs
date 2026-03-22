@@ -1,4 +1,5 @@
 using HomeInventory.Application;
+using HomeInventory.Api.Middleware;
 using HomeInventory.Infrastructure;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -35,6 +36,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
 app.MapControllers();
 
 app.Run();

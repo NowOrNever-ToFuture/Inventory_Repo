@@ -22,6 +22,31 @@ namespace HomeInventory.Infrastructure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HomeInventory.Domain.Entities.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Brands");
+                });
+
             modelBuilder.Entity("HomeInventory.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -99,47 +124,13 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.ToTable("InventoryTransactions");
                 });
 
-            modelBuilder.Entity("HomeInventory.Domain.Entities.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Method")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("PaidAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PurchaseOrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaidAt");
-
-                    b.HasIndex("PurchaseOrderId");
-
-                    b.ToTable("Payments");
-                });
-
             modelBuilder.Entity("HomeInventory.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BrandId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CategoryId")
@@ -148,26 +139,28 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("DefaultCostPrice")
+                    b.Property<decimal>("ImportPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<decimal>("DefaultSellPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                    b.Property<string>("ModelNormalized")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<decimal>("StockQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(30)
@@ -178,9 +171,11 @@ namespace HomeInventory.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("Sku")
+                    b.HasIndex("ModelNormalized")
                         .IsUnique();
 
                     b.ToTable("Products");
@@ -289,23 +284,11 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("DiscountAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("SubTotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -329,10 +312,6 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("LineTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
@@ -342,10 +321,6 @@ namespace HomeInventory.Infrastructure.Data.Migrations
 
                     b.Property<Guid>("SalesOrderId")
                         .HasColumnType("uuid");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -444,24 +419,21 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("HomeInventory.Domain.Entities.Payment", b =>
-                {
-                    b.HasOne("HomeInventory.Domain.Entities.PurchaseOrder", "PurchaseOrder")
-                        .WithMany("Payments")
-                        .HasForeignKey("PurchaseOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PurchaseOrder");
-                });
-
             modelBuilder.Entity("HomeInventory.Domain.Entities.Product", b =>
                 {
+                    b.HasOne("HomeInventory.Domain.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("HomeInventory.Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Brand");
 
                     b.Navigation("Category");
                 });
@@ -515,6 +487,11 @@ namespace HomeInventory.Infrastructure.Data.Migrations
                     b.Navigation("SalesOrder");
                 });
 
+            modelBuilder.Entity("HomeInventory.Domain.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("HomeInventory.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -532,8 +509,6 @@ namespace HomeInventory.Infrastructure.Data.Migrations
             modelBuilder.Entity("HomeInventory.Domain.Entities.PurchaseOrder", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("HomeInventory.Domain.Entities.SalesOrder", b =>

@@ -30,18 +30,18 @@ public class SalesOrdersController(ISalesOrderService salesOrderService) : Contr
 
     /// <summary>Tạo mới đơn bán.</summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] SalesOrderRequestDto request)
+    public async Task<ActionResult<SalesOrderResponseDto>> Create([FromBody] SalesOrderRequestDto request)
     {
-        var id = await salesOrderService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await salesOrderService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>Cập nhật đơn bán theo id.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] SalesOrderRequestDto request)
+    public async Task<ActionResult<SalesOrderResponseDto>> Update(Guid id, [FromBody] SalesOrderRequestDto request)
     {
         var updated = await salesOrderService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>Xóa đơn bán theo id.</summary>

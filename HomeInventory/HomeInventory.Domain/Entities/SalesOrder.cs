@@ -9,9 +9,5 @@ public class SalesOrder : BaseEntity
     public DateTime OrderDate { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
-    public decimal SubTotalAmount { get; set; }
-    public decimal DiscountAmount { get; set; }
-    public decimal TotalAmount { get; set; }
-
     public ICollection<SalesOrderItem> Items { get; set; } = new List<SalesOrderItem>();
 }

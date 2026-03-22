@@ -5,8 +5,6 @@ public class SalesOrderItemRequestDto
     public Guid SalesOrderId { get; set; }
     public Guid ProductId { get; set; }
     public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal LineTotal { get; set; }
 }
 
 public class SalesOrderItemResponseDto
@@ -15,6 +13,4 @@ public class SalesOrderItemResponseDto
     public Guid SalesOrderId { get; set; }
     public Guid ProductId { get; set; }
     public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal LineTotal { get; set; }
 }

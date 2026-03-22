@@ -6,7 +6,7 @@ public interface IInventoryTransactionService
 {
     Task<List<InventoryTransactionResponseDto>> GetAllAsync();
     Task<InventoryTransactionResponseDto?> GetByIdAsync(Guid id);
-    Task<Guid> CreateAsync(InventoryTransactionRequestDto request);
-    Task<bool> UpdateAsync(Guid id, InventoryTransactionRequestDto request);
+    Task<InventoryTransactionResponseDto> CreateAsync(InventoryTransactionRequestDto request);
+    Task<InventoryTransactionResponseDto> UpdateAsync(Guid id, InventoryTransactionRequestDto request);
     Task<bool> DeleteAsync(Guid id);
 }

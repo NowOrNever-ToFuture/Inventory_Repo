@@ -40,20 +40,20 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// Tạo mới danh mục.
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] CategoryRequestDto request)
+    public async Task<ActionResult<CategoryResponseDto>> Create([FromBody] CategoryRequestDto request)
     {
-        var id = await categoryService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await categoryService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>
     /// Cập nhật danh mục theo id.
     /// </summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] CategoryRequestDto request)
+    public async Task<ActionResult<CategoryResponseDto>> Update(Guid id, [FromBody] CategoryRequestDto request)
     {
         var updated = await categoryService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>

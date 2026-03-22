@@ -30,18 +30,18 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
 
     /// <summary>Tạo mới kho.</summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] WarehouseRequestDto request)
+    public async Task<ActionResult<WarehouseResponseDto>> Create([FromBody] WarehouseRequestDto request)
     {
-        var id = await warehouseService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await warehouseService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>Cập nhật kho theo id.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] WarehouseRequestDto request)
+    public async Task<ActionResult<WarehouseResponseDto>> Update(Guid id, [FromBody] WarehouseRequestDto request)
     {
         var updated = await warehouseService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>Xóa kho theo id.</summary>

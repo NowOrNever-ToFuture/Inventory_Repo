@@ -1,5 +1,6 @@
 using HomeInventory.Application.Common.Interface.RepoInterfaces;
 using HomeInventory.Application.Common.Interface.ServiceInterfaces;
+using HomeInventory.Application.Common.Exceptions.Entities;
 using HomeInventory.Application.Features.Warehouse.Dtos;
 using HomeInventory.Domain.Entities;
 
@@ -19,7 +20,7 @@ public class WarehouseService(IUnitOfWork unitOfWork) : IWarehouseService
         return entity is null ? null : Map(entity);
     }
 
-    public async Task<Guid> CreateAsync(WarehouseRequestDto request)
+    public async Task<WarehouseResponseDto> CreateAsync(WarehouseRequestDto request)
     {
         var entity = new Warehouse
         {
@@ -30,13 +31,13 @@ public class WarehouseService(IUnitOfWork unitOfWork) : IWarehouseService
 
         await unitOfWork.Warehouses.AddAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return entity.Id;
+        return Map(entity);
     }
 
-    public async Task<bool> UpdateAsync(Guid id, WarehouseRequestDto request)
+    public async Task<WarehouseResponseDto> UpdateAsync(Guid id, WarehouseRequestDto request)
     {
         var entity = await unitOfWork.Warehouses.GetByIdAsync(id);
-        if (entity is null) return false;
+        if (entity is null) throw new WarehouseNotFoundException(id);
 
         entity.Code = request.Code;
         entity.Name = request.Name;
@@ -45,7 +46,7 @@ public class WarehouseService(IUnitOfWork unitOfWork) : IWarehouseService
 
         await unitOfWork.Warehouses.UpdateAsync(entity);
         await unitOfWork.SaveChangesAsync();
-        return true;
+        return Map(entity);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

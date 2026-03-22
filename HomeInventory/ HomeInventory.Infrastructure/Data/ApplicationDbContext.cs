@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<Product> Products => Set<Product>();
@@ -17,7 +18,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
     public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
     public DbSet<SalesOrderItem> SalesOrderItems => Set<SalesOrderItem>();
-    public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,6 +27,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Category>(entity =>
         {
             entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        });
+
+        modelBuilder.Entity<Brand>(entity =>
+        {
+            entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            entity.HasIndex(x => x.Name).IsUnique();
         });
 
         modelBuilder.Entity<Supplier>(entity =>
@@ -45,13 +51,24 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.Property(x => x.Sku).HasMaxLength(100).IsRequired();
-            entity.HasIndex(x => x.Sku).IsUnique();
+            entity.Property(x => x.Model).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.ModelNormalized).HasMaxLength(100).IsRequired();
+            entity.HasIndex(x => x.ModelNormalized).IsUnique();
             entity.Property(x => x.Name).HasMaxLength(250).IsRequired();
             entity.Property(x => x.Unit).HasMaxLength(30);
 
-            entity.Property(x => x.DefaultCostPrice).HasPrecision(18, 2);
-            entity.Property(x => x.DefaultSellPrice).HasPrecision(18, 2);
+            entity.Property(x => x.StockQuantity).HasPrecision(18, 2);
+            entity.Property(x => x.ImportPrice).HasPrecision(18, 2);
+
+            entity.HasOne(x => x.Category)
+                .WithMany(x => x.Products)
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Brand)
+                .WithMany(x => x.Products)
+                .HasForeignKey(x => x.BrandId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PurchaseOrder>(entity =>
@@ -82,28 +99,16 @@ public class ApplicationDbContext : DbContext
             entity.Property(x => x.Code).HasMaxLength(100).IsRequired();
             entity.HasIndex(x => x.Code).IsUnique();
             entity.HasIndex(x => x.OrderDate);
-
-            entity.Property(x => x.SubTotalAmount).HasPrecision(18, 2);
-            entity.Property(x => x.DiscountAmount).HasPrecision(18, 2);
-            entity.Property(x => x.TotalAmount).HasPrecision(18, 2);
         });
 
         modelBuilder.Entity<SalesOrderItem>(entity =>
         {
             entity.Property(x => x.Quantity).HasPrecision(18, 2);
-            entity.Property(x => x.UnitPrice).HasPrecision(18, 2);
-            entity.Property(x => x.LineTotal).HasPrecision(18, 2);
 
             entity.HasOne(x => x.SalesOrder)
                 .WithMany(x => x.Items)
                 .HasForeignKey(x => x.SalesOrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<Payment>(entity =>
-        {
-            entity.HasIndex(x => x.PaidAt);
-            entity.Property(x => x.Amount).HasPrecision(18, 2);
         });
 
         modelBuilder.Entity<InventoryTransaction>(entity =>

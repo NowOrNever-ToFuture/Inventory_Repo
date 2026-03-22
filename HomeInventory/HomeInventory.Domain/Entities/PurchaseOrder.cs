@@ -17,5 +17,4 @@ public class PurchaseOrder : BaseEntity
     public decimal TotalAmount { get; set; }
 
     public ICollection<PurchaseOrderItem> Items { get; set; } = new List<PurchaseOrderItem>();
-    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

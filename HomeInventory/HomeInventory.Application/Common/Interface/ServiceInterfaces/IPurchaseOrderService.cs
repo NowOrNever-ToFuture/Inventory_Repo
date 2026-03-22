@@ -6,7 +6,7 @@ public interface IPurchaseOrderService
 {
     Task<List<PurchaseOrderResponseDto>> GetAllAsync();
     Task<PurchaseOrderResponseDto?> GetByIdAsync(Guid id);
-    Task<Guid> CreateAsync(PurchaseOrderRequestDto request);
-    Task<bool> UpdateAsync(Guid id, PurchaseOrderRequestDto request);
+    Task<PurchaseOrderResponseDto> CreateAsync(PurchaseOrderRequestDto request);
+    Task<PurchaseOrderResponseDto> UpdateAsync(Guid id, PurchaseOrderRequestDto request);
     Task<bool> DeleteAsync(Guid id);
 }

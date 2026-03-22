@@ -22,6 +22,17 @@ public class SuppliersController(ISupplierService supplierService) : ControllerB
         return Ok(paged);
     }
 
+    /// <summary>Gợi ý nhà cung cấp theo từ khóa (hỗ trợ tiếng Việt, không phân biệt hoa thường).</summary>
+    [HttpGet("suggest")]
+    public async Task<ActionResult<List<SupplierResponseDto>>> Suggest([FromQuery] string q, [FromQuery] int limit = 10)
+    {
+        if (string.IsNullOrWhiteSpace(q)) return BadRequest("q không được để trống.");
+        if (limit <= 0) return BadRequest("limit phải lớn hơn 0.");
+
+        var values = await supplierService.SuggestAsync(q, limit);
+        return Ok(values);
+    }
+
     /// <summary>Lấy thông tin nhà cung cấp theo id.</summary>
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<SupplierResponseDto>> GetById(Guid id)
@@ -32,18 +43,18 @@ public class SuppliersController(ISupplierService supplierService) : ControllerB
 
     /// <summary>Tạo mới nhà cung cấp.</summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] SupplierRequestDto request)
+    public async Task<ActionResult<SupplierResponseDto>> Create([FromBody] SupplierRequestDto request)
     {
-        var id = await supplierService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await supplierService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>Cập nhật nhà cung cấp theo id.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] SupplierRequestDto request)
+    public async Task<ActionResult<SupplierResponseDto>> Update(Guid id, [FromBody] SupplierRequestDto request)
     {
         var updated = await supplierService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>Xóa nhà cung cấp theo id.</summary>

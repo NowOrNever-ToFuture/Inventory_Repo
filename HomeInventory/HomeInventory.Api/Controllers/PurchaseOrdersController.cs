@@ -30,18 +30,18 @@ public class PurchaseOrdersController(IPurchaseOrderService purchaseOrderService
 
     /// <summary>Tạo mới đơn mua.</summary>
     [HttpPost]
-    public async Task<ActionResult<object>> Create([FromBody] PurchaseOrderRequestDto request)
+    public async Task<ActionResult<PurchaseOrderResponseDto>> Create([FromBody] PurchaseOrderRequestDto request)
     {
-        var id = await purchaseOrderService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await purchaseOrderService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>Cập nhật đơn mua theo id.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] PurchaseOrderRequestDto request)
+    public async Task<ActionResult<PurchaseOrderResponseDto>> Update(Guid id, [FromBody] PurchaseOrderRequestDto request)
     {
         var updated = await purchaseOrderService.UpdateAsync(id, request);
-        return updated ? NoContent() : NotFound();
+        return Ok(updated);
     }
 
     /// <summary>Xóa đơn mua theo id.</summary>
